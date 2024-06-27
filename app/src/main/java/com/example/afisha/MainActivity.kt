@@ -1,20 +1,14 @@
 package com.example.afisha
 
 import android.os.Bundle
-import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.ProgressBar
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import androidx.transition.Visibility
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,14 +19,15 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        rcViewMovies = findViewById(R.id.rcViewMovies)
-        progressBar = findViewById(R.id.progressBar)
+        initViews()
+
         val adapter = MoviesAdapter()
         rcViewMovies.adapter = adapter
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
 
+
         viewModel.moviesList.observe(this){
-            adapter.moviesList = it
+            adapter.submitList(it)
         }
         viewModel.isLoading.observe(this){
             if (it == false){
@@ -49,5 +44,23 @@ class MainActivity : AppCompatActivity() {
             val intent = MovieDetailsActivity.newInstance(this, movie)
             startActivity(intent)
         }
+    }
+
+    private fun initViews(){
+        rcViewMovies = findViewById(R.id.rcViewMovies)
+        progressBar = findViewById(R.id.progressBar)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.main_menu,menu)
+        return true // Если true - меню видно на экране
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if(item.itemId == R.id.itemFavouriteMovies){
+            val intent = FavouriteMoviesActivity.newIntent(this)
+            startActivity(intent)
+        }
+        return super.onOptionsItemSelected(item)
     }
 }

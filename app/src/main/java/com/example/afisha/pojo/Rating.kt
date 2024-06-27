@@ -5,5 +5,5 @@ import java.io.Serializable
 
 data class Rating(
     @SerializedName("kp")
-    val kp: Double
+    val kp: Double? = null
 ): Serializable

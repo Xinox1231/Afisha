@@ -11,17 +11,5 @@ data class Trailer(
 
     @SerializedName("name")
     @Expose
-    var name: String? = null,
-
-    @SerializedName("site")
-    @Expose
-    var site: String? = null,
-
-    @SerializedName("size")
-    @Expose
-    var size: Int? = null,
-
-    @SerializedName("type")
-    @Expose
-    var type: String? = null
-) 
+    var name: String? = null
+)

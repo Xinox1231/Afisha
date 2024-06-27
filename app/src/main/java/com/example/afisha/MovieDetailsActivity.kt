@@ -2,20 +2,16 @@ package com.example.afisha
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.widget.ImageView
 import android.widget.TextView
-import com.google.android.material.snackbar.Snackbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.navigateUp
-import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.example.afisha.R
-import com.example.afisha.databinding.ActivityMovieDetailsBinding
 import com.example.afisha.pojo.Movie
 
 class MovieDetailsActivity : AppCompatActivity() {
@@ -24,19 +20,29 @@ class MovieDetailsActivity : AppCompatActivity() {
     private lateinit var tvTitle: TextView
     private lateinit var tvYear: TextView
     private lateinit var tvDescription: TextView
-    private lateinit var rcViewTrailers : RecyclerView
-    private lateinit var trailersAdapter: TrailerAdapter
-    private lateinit var viewModel: MovieDetailsViewModel
+    private lateinit var ivStar: ImageView
 
-    companion object{
+    private lateinit var rcViewTrailers: RecyclerView
+    private lateinit var trailersAdapter: TrailerAdapter
+
+    private lateinit var rcViewReviews: RecyclerView
+    private lateinit var reviewsAdapter: ReviewsAdapter
+
+    private lateinit var viewModel: MovieDetailsViewModel
+    private lateinit var viewModelFactory: MovieDetailViewModelFactory
+
+    companion object {
 
         const val EXTRA_MOVIE = "movie"
-        fun newInstance(context: Context, movie: Movie): Intent{
+        private const val TAG = "MovieDetailsActivity"
+
+        fun newInstance(context: Context, movie: Movie): Intent {
             val intent = Intent(context, MovieDetailsActivity::class.java)
             intent.putExtra(EXTRA_MOVIE, movie)
             return intent
         }
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_movie_details)
@@ -48,24 +54,61 @@ class MovieDetailsActivity : AppCompatActivity() {
         tvYear.text = movie.year.toString()
         tvDescription.text = movie.description
 
+        viewModelFactory = MovieDetailViewModelFactory(application,movie.id)
+        viewModel = ViewModelProvider(this, viewModelFactory)[MovieDetailsViewModel::class.java]
+
+
         trailersAdapter = TrailerAdapter()
         rcViewTrailers.adapter = trailersAdapter
-        val trailer = movie.videos?.trailersList?.trailers
-        Log.d("MainView", trailer.toString())
+        viewModel.trailersList.observe(this)
+        {
+            trailersAdapter.trailerList = it
+        }
+        trailersAdapter.onTrailerClickListener =
+            { trailer ->
+                val intent = Intent(Intent.ACTION_VIEW)
+                intent.data = Uri.parse(trailer.url)
+                startActivity(intent)
+            }
 
-        viewModel = MovieDetailsViewModel()
-        viewModel.getTrailers()
-        viewModel.trailersList.observe(this){
-            Log.d("Test", it.toString())
+        reviewsAdapter = ReviewsAdapter()
+        rcViewReviews.adapter = reviewsAdapter
+        viewModel.reviewsList.observe(this)
+        {
+            reviewsAdapter.reviewsList = it
         }
 
+        val starOf: Drawable? = ContextCompat.getDrawable(
+            this@MovieDetailsActivity,
+            android.R.drawable.star_big_off
+        )
+        val starOn: Drawable? = ContextCompat.getDrawable(
+            this@MovieDetailsActivity,
+            android.R.drawable.star_big_on
+        )
+        viewModel.favouriteMovies.observe(this) { movieFromDb ->
+            if (movieFromDb == null) {
+                ivStar.setImageDrawable(starOf)
+                ivStar.setOnClickListener {
+                    viewModel.insertMovie(movie)
+                }
+            }else{
+                ivStar.setImageDrawable(starOn)
+                ivStar.setOnClickListener {
+                    viewModel.deleteMovie(movie.id)
+                }
+            }
+        }
     }
 
-    private fun initViews(){
+    private fun initViews() {
         ivPoster = findViewById(R.id.ivPoster)
         tvTitle = findViewById(R.id.tvTitle)
         tvYear = findViewById(R.id.tvYear)
         tvDescription = findViewById(R.id.tvDescription)
+        ivStar = findViewById(R.id.ivStar)
+
         rcViewTrailers = findViewById(R.id.rcViewTrailers)
+        rcViewReviews = findViewById(R.id.rcViewReviews)
     }
 }

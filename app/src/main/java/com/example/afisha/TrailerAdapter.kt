@@ -3,11 +3,13 @@ package com.example.afisha
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.afisha.pojo.Trailer
 
 class TrailerAdapter(): RecyclerView.Adapter<TrailerViewHolder>() {
+
+    var onTrailerClickListener: ((Trailer) -> Unit)? = null
 
     var trailerList: List<Trailer> = listOf()
         set(value) {
@@ -30,9 +32,12 @@ class TrailerAdapter(): RecyclerView.Adapter<TrailerViewHolder>() {
     override fun onBindViewHolder(holder: TrailerViewHolder, position: Int) {
         val trailer = trailerList[position]
         holder.tvTrailer.text = trailer.name
+        holder.itemView.setOnClickListener {
+            onTrailerClickListener?.invoke(trailer)
+        }
     }
 }
 
 class TrailerViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-    val tvTrailer: Button = itemView.findViewById(R.id.tvTrailer)
+    val tvTrailer: TextView = itemView.findViewById(R.id.tvTrailer)
 }

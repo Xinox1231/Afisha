@@ -33,13 +33,12 @@ class MainViewModel : ViewModel() {
     fun loadMovies() {
         val loading = _isLoading.value
         if(loading != null && loading) return
-        Log.d("MainViewM", page.toString())
         val disposable = ApiFactory.apiService.loadMovies(page)
             .subscribeOn(Schedulers.io())
             .doOnSubscribe{
                 _isLoading.value = true
             }
-            .map { it.movies }
+            .map { it.movies?: listOf() }
             .observeOn(AndroidSchedulers.mainThread())
             .doAfterTerminate {
                 _isLoading.value = false
@@ -48,7 +47,7 @@ class MainViewModel : ViewModel() {
                 val loadedMovies : MutableList<Movie>? = _moviesList.value?.toMutableList()
                 if(loadedMovies != null){
                     loadedMovies.addAll(it)
-                    _moviesList.value = loadedMovies
+                    _moviesList.value = loadedMovies ?: listOf()
                 }else{
                     _moviesList.value = it
                 }

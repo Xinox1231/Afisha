@@ -6,17 +6,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.example.afisha.pojo.Movie
 
-class MoviesAdapter() : RecyclerView.Adapter<MovieHolder>() {
+class MoviesAdapter() : ListAdapter<Movie, MovieHolder>(MovieItemDiffCallback()) {
 
-    var moviesList = listOf<Movie>()
-        set(value) {
-            field = value
-            notifyDataSetChanged()
-        }
     var onReachEndListener: (() -> Unit)? = null
     var onMovieClickListener: ((Movie) -> Unit)? = null
 
@@ -29,12 +26,8 @@ class MoviesAdapter() : RecyclerView.Adapter<MovieHolder>() {
         return MovieHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return moviesList.size
-    }
-
     override fun onBindViewHolder(holder: MovieHolder, position: Int) {
-        val item = moviesList[position]
+        val item = getItem(position)
         val rating = item.rating?.kp
         rating?.let {
             val ratingBackGroundId = if (it > 7.0) R.drawable.cicrle_green
@@ -46,14 +39,13 @@ class MoviesAdapter() : RecyclerView.Adapter<MovieHolder>() {
             )
             holder.tvRating.text = String.format("%.1f", it)
         }
-        Glide.with(holder.itemView).load(item.poster?.url).into(holder.ivPoster)
-        if ((position == moviesList.size - 10) && onReachEndListener != null) {
+        Glide.with(holder.itemView).load(item.poster?.url)
+            .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(holder.ivPoster)
+        if ((position == itemCount - 10) && onReachEndListener != null) {
             onReachEndListener?.invoke()
         }
         holder.itemView.setOnClickListener {
-            if (onMovieClickListener != null) {
-                onMovieClickListener?.invoke(moviesList[position])
-            }
+            onMovieClickListener?.invoke(getItem(position))
         }
     }
 }
