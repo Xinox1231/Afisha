@@ -15,25 +15,46 @@ class MainViewModel : ViewModel() {
     val moviesList: LiveData<List<Movie>>
         get() = _moviesList
 
-    private val _isLoading = MutableLiveData<Unit>()
-    val isLoading: LiveData<Unit>
+    private val _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    private val _isError = MutableLiveData<Unit>()
-    val isError: LiveData<Unit>
+    private val _isError = MutableLiveData<Boolean>()
+    val isError: LiveData<Boolean>
         get() = _isLoading
 
     private val compositeDisposable = CompositeDisposable()
+    private var page: Int = 1
 
-    fun loadMovies(page: Int) {
+    init {
+        loadMovies()
+    }
+
+    fun loadMovies() {
+        val loading = _isLoading.value
+        if(loading != null && loading) return
+        Log.d("MainViewM", page.toString())
         val disposable = ApiFactory.apiService.loadMovies(page)
             .subscribeOn(Schedulers.io())
+            .doOnSubscribe{
+                _isLoading.value = true
+            }
             .map { it.movies }
             .observeOn(AndroidSchedulers.mainThread())
+            .doAfterTerminate {
+                _isLoading.value = false
+            }
             .subscribe({
-                _moviesList.value = it
-                Log.d("MainViewModel", it.toString())
+                val loadedMovies : MutableList<Movie>? = _moviesList.value?.toMutableList()
+                if(loadedMovies != null){
+                    loadedMovies.addAll(it)
+                    _moviesList.value = loadedMovies
+                }else{
+                    _moviesList.value = it
+                }
+                page++
             }, {
+                _isError.value = true
                 Log.d("MainViewModel", it.message.toString())
             })
         compositeDisposable.add(disposable)

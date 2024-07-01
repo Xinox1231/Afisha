@@ -2,6 +2,7 @@ package com.example.afisha.pojo
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
 
 data class Poster (
@@ -12,4 +13,4 @@ data class Poster (
     @SerializedName("previewUrl")
     @Expose
     var previewUrl: String? = null
-)
+): Serializable

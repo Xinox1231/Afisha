@@ -1,9 +1,8 @@
 package com.example.afisha.pojo
 
-import android.media.tv.TvContract.Channels.Logo
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import java.util.jar.Attributes.Name
+import java.io.Serializable
 
 
 data class Movie(
@@ -21,11 +20,7 @@ data class Movie(
 
     @SerializedName("enName")
     @Expose
-    var enName: Any? = null,
-
-    @SerializedName("names")
-    @Expose
-    var names: List<Name>? = null,
+    var enName: String? = null,
 
     @SerializedName("type")
     @Expose
@@ -41,15 +36,11 @@ data class Movie(
 
     @SerializedName("description")
     @Expose
-    var description: Any? = null,
+    var description: String? = null,
 
     @SerializedName("shortDescription")
     @Expose
-    var shortDescription: Any? = null,
-
-    @SerializedName("status")
-    @Expose
-    var status: Any? = null,
+    var shortDescription: String? = null,
 
     @SerializedName("rating")
     @Expose
@@ -59,47 +50,19 @@ data class Movie(
     @Expose
     var movieLength: Int? = null,
 
-    @SerializedName("totalSeriesLength")
-    @Expose
-    var totalSeriesLength: Any? = null,
-
-    @SerializedName("seriesLength")
-    @Expose
-    var seriesLength: Any? = null,
-
-    @SerializedName("ratingMpaa")
-    @Expose
-    var ratingMpaa: Any? = null,
-
-    @SerializedName("ageRating")
-    @Expose
-    var ageRating: Any? = null,
-
     @SerializedName("poster")
     @Expose
     var poster: Poster? = null,
 
-    @SerializedName("genres")
+    @SerializedName("videos")
     @Expose
-    var genres: List<Genre>? = null,
+    var videos: TrailerResponse? = null,
 
     @SerializedName("ticketsOnSale")
     @Expose
     var ticketsOnSale: Boolean? = null,
 
-    @SerializedName("top10")
-    @Expose
-    var top10: Any? = null,
-
-    @SerializedName("top250")
-    @Expose
-    var top250: Any? = null,
-
     @SerializedName("isSeries")
     @Expose
     var isSeries: Boolean? = null,
-
-    @SerializedName("logo")
-    @Expose
-    var logo: Logo? = null
-)
+): Serializable
